@@ -1,0 +1,43 @@
+kind: workflow
+trigger:
+  kind: OnConversationStart
+  id: trigger_wf
+  actions:
+    - kind: SetVariable
+      id: node-1781249720392
+      variable: Local.FeedbackItems
+      value: |-
+        =[
+          "Your latest update broke our CSV export and now our weekly reports fail. We're seriously evaluating other tools.",
+          "Love the new dashboard! The dark mode is gorgeous and made my team's review meetings way faster.",
+          "Could you add a way to schedule recurring exports? Right now I run them manually every Monday.",
+          "The mobile app crashes on the login screen for some of our users since Tuesday."
+        ]
+    - kind: Foreach
+      items: =Local.FeedbackItems
+      value: Local.CurrentItem
+      index: Local.LoopIndex_node_1781249836858
+      actions:
+        - kind: InvokeAzureAgent
+          id: node-1781249917153
+          agent:
+            name: Classifier-Agent
+          conversationId: =System.ConversationId
+          input:
+            messages: =Local.CurrentItem
+          output:
+            autoSend: true
+            messages: Local.ClassifyText
+            responseObject: Local.ClassifyJson
+        - kind: ConditionGroup
+          conditions: []
+          id: node-1781250369016
+        - kind: EndConversation
+          id: node-1781250389688
+      id: node-1781249836858
+    - kind: ConditionGroup
+      conditions: []
+      id: node-1781250134222
+id: ""
+name: PulsePoint-Feedback-Router
+description: ""
